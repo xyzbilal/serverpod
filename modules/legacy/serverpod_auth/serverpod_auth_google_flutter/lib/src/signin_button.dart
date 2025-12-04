@@ -87,12 +87,12 @@ class SignInWithGoogleButtonState extends State<SignInWithGoogleButton> {
               additionalScopes: widget.additionalScopes,
               redirectUri: widget.redirectUri,
             )
-            .then((UserInfo? userInfo, AuthenticationFailReason? failReason) {
+            .then((userInfo) {
               // Notify the parent.
-              if (userInfo != null) {
+              if (userInfo.$1 != null) {
                 widget.onSignedIn?.call();
               } else {
-                widget.onFailure?.call(failReason);
+                widget.onFailure?.call(userInfo.$2);
               }
             })
             .onError((error, stackTrace) {
