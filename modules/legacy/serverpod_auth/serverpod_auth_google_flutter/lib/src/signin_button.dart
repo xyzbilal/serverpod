@@ -18,7 +18,7 @@ class SignInWithGoogleButton extends StatefulWidget {
   final VoidCallback? onSignedIn;
 
   /// Called if sign in is unsuccessful.
-  final VoidCallback? onFailure;
+  final Function(AuthenticationFailReason?)? onFailure;
 
   /// The style of the button.
   final ButtonStyle? style;
@@ -87,16 +87,16 @@ class SignInWithGoogleButtonState extends State<SignInWithGoogleButton> {
               additionalScopes: widget.additionalScopes,
               redirectUri: widget.redirectUri,
             )
-            .then((UserInfo? userInfo) {
+            .then((UserInfo? userInfo, AuthenticationFailReason? failReason) {
               // Notify the parent.
               if (userInfo != null) {
                 widget.onSignedIn?.call();
               } else {
-                widget.onFailure?.call();
+                widget.onFailure?.call(failReason);
               }
             })
             .onError((error, stackTrace) {
-              widget.onFailure?.call();
+              widget.onFailure?.call(null);
             })
             .whenComplete(
               () =>
