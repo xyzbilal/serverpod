@@ -36,8 +36,9 @@ import 'google/sign_in_with_google.dart';
 /// ```
 /// Assuming the above route is added, the redirect uri would be:
 /// https://example.com/googlesignin
-Future<UserInfo?> signInWithGoogle(
+Future<(UserInfo?,AuthenticationFailReason?)> signInWithGoogle(
   Caller caller, {
+  bool debug = false, //TODO: Remove this parameter on next breaking change.
   String? clientId,
   String? serverClientId,
   List<String> additionalScopes = const [],
@@ -70,9 +71,8 @@ Future<UserInfo?> signInWithGoogle(
       );
     } else {
       // Fall back on idToken
-      serverResponse = await caller.google.authenticateWithIdToken(
-        tokens.idToken!,
-      );
+      serverResponse =
+          await caller.google.authenticateWithIdToken(tokens.idToken!);
     }
 
     if (!serverResponse.success) {
@@ -82,7 +82,7 @@ Future<UserInfo?> signInWithGoogle(
           '${serverResponse.failReason ?? 'reason unknown'}. Aborting.',
         );
       }
-      return null;
+      return (null, serverResponse.failReason);
     }
 
     // Store the user info in the session manager.
@@ -100,11 +100,11 @@ Future<UserInfo?> signInWithGoogle(
       );
     }
 
-    return serverResponse.userInfo;
+    return (serverResponse.userInfo, null);
   } catch (e, stackTrace) {
     if (kDebugMode) print('serverpod_auth_google: $e');
     if (kDebugMode) print('$stackTrace');
     onError?.call(e, stackTrace);
-    return null;
+    return (null, null);
   }
 }
