@@ -12,9 +12,12 @@ class EmailAuthController {
 
   /// Attempts to sign in with email and password. If successful, a [UserInfo]
   /// is returned. If the attempt is not a success, null is returned.
-  Future<UserInfo?> signIn(String email, String password) async {
+ Future<(UserInfo?,AuthenticationFailReason?)> signIn(String email, String password) async {
     try {
       var serverResponse = await caller.email.authenticate(email, password);
+
+    
+
       if (!serverResponse.success ||
           serverResponse.userInfo == null ||
           serverResponse.keyId == null ||
@@ -27,7 +30,7 @@ class EmailAuthController {
             '. Aborting.',
           );
         }
-        return null;
+        return (null, serverResponse.failReason);
       }
 
       // Authentication was successful, store the key.
@@ -37,13 +40,13 @@ class EmailAuthController {
         serverResponse.keyId!,
         serverResponse.key!,
       );
-      return serverResponse.userInfo;
+      return (serverResponse.userInfo, null);
     } catch (e, stackTrace) {
       if (kDebugMode) {
         print('$e');
         print('$stackTrace');
       }
-      return null;
+      return (null, null);
     }
   }
 
