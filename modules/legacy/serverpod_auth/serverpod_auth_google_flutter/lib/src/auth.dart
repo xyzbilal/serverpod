@@ -108,3 +108,4 @@ Future<(UserInfo?,AuthenticationFailReason?)> signInWithGoogle(
     return (null, null);
   }
 }
+
